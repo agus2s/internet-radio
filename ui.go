@@ -164,6 +164,9 @@ func (s *spectrum) snapshot(n int) []float64 {
 // player dan playlist supaya keduanya sejajar tanpa baris kosong di bawah.
 const panelHeight = 17
 
+// copyright ditampilkan di kaki panel playlist.
+const copyright = "© 2026 Agus Supriyadi"
+
 func (a *app) view(width, height int) string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -253,7 +256,7 @@ func (a *app) playlistView(winW int) string {
 		a.dividerLine(cw),
 		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate("x play  c pause  v stop  m mute", cw-2))),
 		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate("z/b or <-> ch  up/dn vol  q quit", cw-2))),
-		blankLine(cw),
+		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate(copyright, cw-2))),
 	)
 
 	return lipgloss.NewStyle().
