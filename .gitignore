@@ -1,0 +1,12 @@
+# Go build artifacts
+*.exe
+*.test
+*.out
+*.prof
+coverage.*
+/bin/
+/dist/
+
+# OS metadata
+.DS_Store
+Thumbs.db
