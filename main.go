@@ -200,6 +200,15 @@ func (a *app) switchTo(i int) {
 	a.wake()
 }
 
+// addChannel menyisipkan channel baru di atas item pertama lalu memutarnya.
+// Channel ini hanya berlaku untuk sesi berjalan, tidak ditulis ke channels.txt.
+func (a *app) addChannel(c channel) {
+	a.mu.Lock()
+	channels = append([]channel{c}, channels...)
+	a.mu.Unlock()
+	a.switchTo(0)
+}
+
 // play: tombol play. Melanjutkan jeda atau menyambung ulang setelah stop.
 func (a *app) play() {
 	a.mu.Lock()

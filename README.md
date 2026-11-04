@@ -34,6 +34,7 @@ Ditulis dalam Go dengan [Bubble Tea](https://github.com/charmbracelet/bubbletea)
 - **Penghitung data** yang sudah diunduh (MB) per sesi channel.
 - **Layout responsif**: menyesuaikan lebar terminal, teks terpotong rapi dengan elipsis.
 - **URL kustom** bisa ditambahkan sebagai channel pertama lewat flag `-url`.
+- **Tambah URL dari layar**: tekan `a`, masukkan URL stream, lalu Enter. Channel baru langsung disisipkan di atas item pertama dan diputar (berlaku untuk sesi ini; tambahkan ke `channels.txt` bila ingin permanen).
 
 ## Kebutuhan
 
@@ -96,6 +97,7 @@ go run .
 | `↑` / `+` / `=` | Volume naik |
 | `↓` / `-` / `_` | Volume turun |
 | `m` / `M` | Mute / unmute |
+| `a` / `A` | Tambah URL stream baru di atas item pertama (Enter simpan, Esc batal) |
 | `1`–`9` | Lompat langsung ke channel 1–9 |
 | `q` / `Q` / `Esc` / `Ctrl+C` | Keluar |
 

@@ -15,9 +15,12 @@ import (
 // ---------- model Bubble Tea ----------
 
 type uiModel struct {
-	app    *app
-	width  int
-	height int
+	app      *app
+	width    int
+	height   int
+	adding   bool
+	input    string
+	inputErr string
 }
 
 func newUIModel(a *app) uiModel {
@@ -39,6 +42,19 @@ func (m uiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tickMsg:
 		return m, tickCmd()
 	case tea.KeyMsg:
+		if msg.String() == "ctrl+c" {
+			return m, tea.Quit
+		}
+		if m.adding {
+			m = m.handleAddKey(msg)
+			return m, nil
+		}
+		if msg.String() == "a" || msg.String() == "A" {
+			m.adding = true
+			m.input = ""
+			m.inputErr = ""
+			return m, nil
+		}
 		if m.handleKey(msg.String()) {
 			return m, tea.Quit
 		}
@@ -76,6 +92,51 @@ func (m uiModel) handleKey(key string) bool {
 	return false
 }
 
+// handleAddKey memproses input URL saat mode tambah channel aktif.
+func (m uiModel) handleAddKey(msg tea.KeyMsg) uiModel {
+	switch msg.String() {
+	case "esc":
+		m.adding = false
+		m.input = ""
+		m.inputErr = ""
+	case "enter":
+		raw := strings.TrimSpace(m.input)
+		if err := validateStreamURL(raw); err != nil {
+			m.inputErr = err.Error()
+			return m
+		}
+		m.app.addChannel(channel{Name: nameFromURL(raw), URL: raw})
+		m.adding = false
+		m.input = ""
+		m.inputErr = ""
+	case "backspace", "delete":
+		if r := []rune(m.input); len(r) > 0 {
+			m.input = string(r[:len(r)-1])
+		}
+		m.inputErr = ""
+	case "ctrl+u":
+		m.input = ""
+		m.inputErr = ""
+	default:
+		if msg.Type == tea.KeyRunes || msg.Type == tea.KeySpace {
+			m.input += string(msg.Runes)
+			m.inputErr = ""
+		}
+	}
+	return m
+}
+
+// footer menampilkan baris input URL saat mode tambah channel aktif.
+func (m uiModel) footer() string {
+	if !m.adding {
+		return ""
+	}
+	if m.inputErr != "" {
+		return "URL baru: " + m.input + "\n! " + m.inputErr
+	}
+	return "URL baru: " + m.input + "\nEnter simpan · Esc batal"
+}
+
 func (m uiModel) View() string {
 	w, h := m.width, m.height
 	if w <= 0 {
@@ -84,7 +145,7 @@ func (m uiModel) View() string {
 	if h <= 0 {
 		h = 24
 	}
-	return m.app.view(w, h)
+	return m.app.view(w, h, m.footer())
 }
 
 // ---------- visualizer ----------
@@ -167,7 +228,7 @@ const panelHeight = 17
 // copyright ditampilkan di kaki panel playlist.
 const copyright = "© 2026 Agus Supriyadi"
 
-func (a *app) view(width, height int) string {
+func (a *app) view(width, height int, footer string) string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -182,6 +243,25 @@ func (a *app) view(width, height int) string {
 	player := a.playerView(winW)
 	playlist := a.playlistView(winW)
 	layout := lipgloss.JoinHorizontal(lipgloss.Top, player, " ", playlist)
+
+	if footer != "" {
+		fw := lipgloss.Width(layout)
+		lines := strings.Split(footer, "\n")
+		for i := range lines {
+			if i == 0 {
+				lines[i] = truncateLeft(lines[i], fw)
+			} else {
+				lines[i] = truncate(lines[i], fw)
+			}
+			lines[i] = lipgloss.NewStyle().
+				Background(colBlue).
+				Foreground(colWhite).
+				Bold(true).
+				Width(fw).
+				Render(lines[i])
+		}
+		layout = lipgloss.JoinVertical(lipgloss.Left, layout, strings.Join(lines, "\n"))
+	}
 
 	if height > 21 {
 		return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, layout)
@@ -255,7 +335,7 @@ func (a *app) playlistView(winW int) string {
 	lines = append(lines,
 		a.dividerLine(cw),
 		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate("x play  c pause  v stop  m mute", cw-2))),
-		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate("z/b or <-> ch  up/dn vol  q quit", cw-2))),
+		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate("z/b ch  up/dn vol  a add  q quit", cw-2))),
 		bodyLine(cw, lipgloss.NewStyle().Foreground(colGray).Width(cw-2).Render(truncate(copyright, cw-2))),
 	)
 
@@ -577,6 +657,22 @@ func truncate(s string, w int) string {
 		return string(r[:w])
 	}
 	return string(r[:w-3]) + "..."
+}
+
+// truncateLeft memotong dari kiri supaya bagian akhir teks (yang sedang
+// diketik) tetap terlihat.
+func truncateLeft(s string, w int) string {
+	if w < 1 {
+		return ""
+	}
+	if lipgloss.Width(s) <= w {
+		return s
+	}
+	r := []rune(s)
+	for len(r) > 0 && lipgloss.Width("…"+string(r)) > w {
+		r = r[1:]
+	}
+	return "…" + string(r)
 }
 
 func marquee(s string, w int, now time.Time) string {
