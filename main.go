@@ -46,11 +46,6 @@ var (
 
 const sampleRate = beep.SampleRate(44100)
 
-// ---------- daftar channel ----------
-
-// channels diisi saat start dari file daftar channel (lihat channels.go).
-var channels []channel
-
 // ---------- streamer yang bisa diganti saat reconnect/pindah channel ----------
 
 type switcher struct {
@@ -501,8 +496,11 @@ func main() {
 	chFile := flag.String("channels", "", "file daftar channel (format: Nama | URL)")
 	flag.Parse()
 
-	cfgPath, chans, warnings := resolveChannels(*chFile)
+	_, chans, warnings := resolveChannels(*chFile)
 	channels = chans
+	for _, w := range warnings {
+		fmt.Fprintln(os.Stderr, "peringatan:", w)
+	}
 
 	if *custom != "" {
 		if err := validateStreamURL(*custom); err != nil {

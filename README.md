@@ -172,4 +172,4 @@ Seluruh hak atas nama channel, merek, dan konten audio tetap milik pemiliknya ma
 
 ## Lisensi
 
-Kode proyek ini belum memiliki lisensi eksplisit. Tambahkan file `LICENSE` (mis. MIT) bila ingin memperjelas ketentuan penggunaan kode.
+Dirilis di bawah lisensi [MIT](LICENSE) © 2026 Agus Supriyadi.

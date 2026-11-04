@@ -160,6 +160,10 @@ func (s *spectrum) snapshot(n int) []float64 {
 
 // ---------- layout ----------
 
+// panelHeight adalah tinggi isi panel tanpa border. Dipakai bersama oleh
+// player dan playlist supaya keduanya sejajar tanpa baris kosong di bawah.
+const panelHeight = 17
+
 func (a *app) view(width, height int) string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -200,14 +204,13 @@ func (a *app) playerView(winW int) string {
 		bodyLine(cw, a.buttonLine(cw-2)),
 		blankLine(cw),
 		bodyLine(cw, a.statusLine(cw-2)),
-		blankLine(cw),
 	}
 
 	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(colGray).
 		Width(cw).
-		Height(18).
+		Height(panelHeight).
 		Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
 
@@ -257,7 +260,7 @@ func (a *app) playlistView(winW int) string {
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(colGray).
 		Width(cw).
-		Height(18).
+		Height(panelHeight).
 		Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
 
