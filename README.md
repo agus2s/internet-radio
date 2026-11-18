@@ -6,7 +6,7 @@ Ditulis dalam Go dengan [Bubble Tea](https://github.com/charmbracelet/bubbletea)
 
 ```
 ╭──────────────────────────────╮ ╭──────────────────────────╮
-│ INTERNET RADIO PLAYER    ... │ │ PLAYLIST           1/16  │
+│ INTERNET RADIO PLAYER    ... │ │ PLAYLIST           1/30  │
 │──────────────────────────────│ │──────────────────────────│
 │ ╭──────────────────────────╮ │ │ #  CHANNEL               │
 │ │ Now playing: ...         │ │ │ >  1. ANTENNE BAYERN     │
@@ -24,7 +24,7 @@ Ditulis dalam Go dengan [Bubble Tea](https://github.com/charmbracelet/bubbletea)
 
 ## Fitur
 
-- **16 channel bawaan** ANTENNE BAYERN (Top 40, Rock Antenne, Chillout, 80er, 90er, Schlager, Weihnachts-Hits, dll).
+- **30 channel bawaan**: 18 channel ANTENNE BAYERN (Top 40, Rock Antenne, Chillout, 80er, 90er, 2000er, 2010er, Schlager, Weihnachts-Hits, dll) plus 12 radio Indonesia (iSwara, Hard Rock FM, V Radio, MNC Trijaya, RDI, Suara Giri, Elshinta, Radio Rodja, Retjo Buntung, Rama FM, Dahlia FM, Radio Sholawat).
 - **Judul lagu real-time** dari metadata ICY (`StreamTitle`), ditampilkan sebagai teks berjalan (marquee).
 - **Spectrum analyzer** 64 bar yang dihitung dari sampel audio yang benar-benar diputar, bukan animasi palsu.
 - **Auto-reconnect**: stream yang terputus disambung ulang otomatis (channel yang sama), dengan jeda singkat.
@@ -113,18 +113,34 @@ go run .
 | 4 | Chillout |
 | 5 | 80er Kulthits |
 | 6 | 90er Hits |
-| 7 | Oldies but Goldies |
-| 8 | Classic Rock Live |
-| 9 | New Hits |
-| 10 | Lovesongs |
-| 11 | Fresh 4 You |
-| 12 | Event |
-| 13 | Workout Hits |
-| 14 | Hits fuer Kids |
-| 15 | Schlager Karussell |
-| 16 | Weihnachts-Hits |
+| 7 | 2000er Hits |
+| 8 | 2010er Hits |
+| 9 | Oldies but Goldies |
+| 10 | Classic Rock Live |
+| 11 | Coffee Music |
+| 12 | Lovesongs |
+| 13 | Fresh 4 You |
+| 14 | Event |
+| 15 | Workout Hits |
+| 16 | Hits fuer Kids |
+| 17 | Schlager Karussell |
+| 18 | Weihnachts-Hits |
+| 19 | iSwara Jakarta |
+| 20 | Hard Rock FM Jakarta |
+| 21 | V Radio Jakarta |
+| 22 | MNC Trijaya FM Jakarta |
+| 23 | RDI FM Jakarta (Dangdut) |
+| 24 | Suara Giri FM Surabaya |
+| 25 | Elshinta Jakarta |
+| 26 | Radio Rodja |
+| 27 | Retjo Buntung FM Jogja |
+| 28 | Rama FM Bandung |
+| 29 | Radio Dahlia FM Bandung |
+| 30 | Radio Sholawat |
 
-Semua stream memakai basis URL `https://mp3channels.webradio.antenne.de/`. Daftar channel didefinisikan di `main.go` (variabel `channels`), jadi menambah channel baru cukup menambahkan satu entri di sana.
+Channel 1–18 memakai basis URL `https://mp3channels.webradio.antenne.de/`, sedangkan channel 19–30 adalah stream radio Indonesia. Semua stream di daftar bawaan berformat MP3 agar cocok dengan decoder aplikasi (stream AAC/HLS tidak didukung). Daftar bawaan didefinisikan di `channels.go` (variabel `defaultChannels`), dan bisa ditimpa lewat `channels.txt` atau flag `-channels`.
+
+> URL stream radio bisa berubah sewaktu-waktu. Jika sebuah channel gagal (`HTTP 403`/`404` atau `Gagal decode`), perbarui URL-nya di `channels.txt` atau ganti dengan stream MP3 lain lewat tombol `a`.
 
 ## Cara kerja singkat
 
@@ -151,7 +167,8 @@ Struktur file:
 
 | File | Isi |
 | --- | --- |
-| `main.go` | Daftar channel, state aplikasi, pembaca ICY, koneksi & loop pemutaran, entry point. |
+| `main.go` | State aplikasi, pembaca ICY, koneksi & loop pemutaran, entry point. |
+| `channels.go` | Daftar channel bawaan, parsing/validasi `channels.txt`, dan penentuan file daftar channel. |
 | `ui.go` | Model Bubble Tea, penanganan tombol, spectrum analyzer, tata letak dan semua komponen visual. |
 | `go.mod` / `go.sum` | Dependensi (bubbletea, lipgloss, beep v2). |
 

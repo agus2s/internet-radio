@@ -19,17 +19,19 @@ type channel struct {
 
 const base = "https://mp3channels.webradio.antenne.de/"
 
-// defaultChannels dipakai saat file daftar channel belum ada atau tidak valid.
-var defaultChannels = []channel{
+// germanChannels adalah daftar bawaan ANTENNE BAYERN.
+var germanChannels = []channel{
 	{"ANTENNE BAYERN", base + "antenne"},
 	{"Top 40", base + "top-40"},
 	{"Rock Antenne", base + "rockantenne"},
 	{"Chillout", base + "chillout"},
 	{"80er Kulthits", base + "80er-kulthits"},
 	{"90er Hits", base + "90er-hits"},
+	{"2000er Hits", base + "2000er-hits"},
+	{"2010er Hits", base + "2010er-hits"},
 	{"Oldies but Goldies", base + "oldies-but-goldies"},
 	{"Classic Rock Live", base + "classic-rock-live"},
-	{"New Hits", base + "new-hits"},
+	{"Coffee Music", base + "coffee"},
 	{"Lovesongs", base + "lovesongs"},
 	{"Fresh 4 You", base + "fresh"},
 	{"Event", base + "event"},
@@ -38,6 +40,26 @@ var defaultChannels = []channel{
 	{"Schlager Karussell", base + "das-schlager-karussell"},
 	{"Weihnachts-Hits", base + "weihnachts-hits"},
 }
+
+// indonesianChannels adalah radio Indonesia, semuanya berformat MP3 agar
+// cocok dengan decoder aplikasi (stream AAC/HLS tidak didukung).
+var indonesianChannels = []channel{
+	{"iSwara Jakarta", "https://stream.radiojar.com/4ywdgup3bnzuv"},
+	{"Hard Rock FM Jakarta", "https://n06.radiojar.com/7csmg90fuqruv"},
+	{"V Radio Jakarta", "http://202.147.199.100:8000/;stream.nsv"},
+	{"MNC Trijaya FM Jakarta", "http://202.147.199.101:8000/;stream.nsv"},
+	{"RDI FM Jakarta (Dangdut)", "http://202.147.199.99:8000/stream"},
+	{"Suara Giri FM Surabaya", "http://streaming.girifm.com:8010/"},
+	{"Elshinta Jakarta", "https://stream-ssl.arenastreaming.com:8000/jakarta"},
+	{"Radio Rodja", "https://radioislamindonesia.com/rodja.mp3?_=2"},
+	{"Retjo Buntung FM Jogja", "http://45.64.97.82:9940/"},
+	{"Rama FM Bandung", "https://i.klikhost.com/8330/;"},
+	{"Radio Dahlia FM Bandung", "https://svara-stream.radioddns.net/bandung_dahliafm"},
+	{"Radio Sholawat", "https://stream.zeno.fm/us5bsznu3rptv"},
+}
+
+// defaultChannels dipakai saat file daftar channel belum ada atau tidak valid.
+var defaultChannels = append(append([]channel{}, germanChannels...), indonesianChannels...)
 
 // channels diisi dari file daftar channel (lihat resolveChannels).
 var channels []channel
@@ -62,7 +84,11 @@ func defaultFileContent() string {
 	var b strings.Builder
 	b.WriteString(channelsHeader)
 	b.WriteString("\n")
-	for _, c := range defaultChannels {
+	for _, c := range germanChannels {
+		fmt.Fprintf(&b, "%s | %s\n", c.Name, c.URL)
+	}
+	b.WriteString("\n# --- Channel Indonesia ---\n")
+	for _, c := range indonesianChannels {
 		fmt.Fprintf(&b, "%s | %s\n", c.Name, c.URL)
 	}
 	return b.String()
